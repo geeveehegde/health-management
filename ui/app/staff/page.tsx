@@ -1,91 +1,195 @@
-import Dropdown from "../components/dropdown"
+'use client'
+import { useEffect, useState } from "react";
+import Modal from "../components/Modal";
+import Select from "react-select";
 
-const people = [
-  {
-    name: 'Leslie Alexander',
-    email: 'leslie.alexander@example.com',
-    role: 'Doctor',
-    imageUrl:
-      'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    currentShift: 'Morning Shift',
-    currentShiftDateTime: '2023-01-23T13:23Z',
-  },
-  {
-    name: 'Michael Foster',
-    email: 'michael.foster@example.com',
-    role: 'Nurse',
-    imageUrl:
-      'https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    currentShift: 'Evening Shift',
-    currentShiftDateTime: '2023-01-23T13:23Z',
-  },
-  {
-    name: 'Dries Vincent',
-    email: 'dries.vincent@example.com',
-    role: 'Business Relations',
-    imageUrl:
-      'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    currentShift: null,
-  },
-  {
-    name: 'Lindsay Walton',
-    email: 'lindsay.walton@example.com',
-    role: 'Front-end Developer',
-    imageUrl:
-      'https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    currentShift: '3h ago',
-    currentShiftDateTime: '2023-01-23T13:23Z',
-  },
-  {
-    name: 'Courtney Henry',
-    email: 'courtney.henry@example.com',
-    role: 'Designer',
-    imageUrl:
-      'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    currentShift: '3h ago',
-    currentShiftDateTime: '2023-01-23T13:23Z',
-  },
-  {
-    name: 'Tom Cook',
-    email: 'tom.cook@example.com',
-    role: 'Director of Product',
-    imageUrl:
-      'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    currentShift: null,
-  },
-]
 
 export default function StaffPage() {
+ const [formState, setFormState] = useState(false);
+ const [shifts, setShifts] = useState([]);
+ const [formData, setFormData] = useState({
+   shiftName: '',
+   shiftDate: '',
+   shiftType: '',
+   maxCapacity: ''
+ });
+
+ const fetchShifts = () => {
+  fetch('http://localhost:3000/api/shiftSchedule')
+    .then(response =>  response.json())
+    .then(data => {
+      setShifts(data);
+    }
+    )
+    .catch(error => {
+      console.error('Error fetching shifts:', error);
+    }
+  );
+ };
+
+ useEffect(() => {
+  fetchShifts();
+ },[]);
+
+ const handleInputChange = (e: any) => {
+   const { name, value } = e.target;
+   setFormData(prev => ({
+     ...prev,
+     [name]: value
+   }));
+ };
+
+ const handleSelectChange = (selectedOption: any) => {
+   setFormData(prev => ({
+     ...prev,
+     shiftType: selectedOption.value
+   }));
+ };
+
+ const handleSubmit = async (e: any) => {
+   e.preventDefault();
+   try {
+     const response = await fetch('http://localhost:3000/api/shiftSchedule', {
+       method: 'POST',
+       headers: {
+         'Content-Type': 'application/json',
+       },
+       body: JSON.stringify({
+         name: formData.shiftName,
+         date: formData.shiftDate,
+         type: formData.shiftType,
+         maxCapacity: parseInt(formData.maxCapacity)
+       })
+     });
+
+     if (response.ok) {
+       // Reset form
+       setFormData({
+         shiftName: '',
+         shiftDate: '',
+         shiftType: '',
+         maxCapacity: ''
+       });
+       // Close modal
+       setFormState(false);
+       // Refresh shifts list
+       fetchShifts();
+     } else {
+       console.error('Error creating shift:', response.statusText);
+     }
+   } catch (error) {
+     console.error('Error creating shift:', error);
+   }
+ };
   return (
-    <div className="w-screen bg-white">
-        <div className="w-screen h-30 bg-white flex items-center justify-between">
+    <div className="w-screen text-gray-900">
+        <div className="w-screen h-30 flex items-center justify-between px-6">
             <h1 className="text-2xl font-bold text-gray-900">Shifts</h1>
-            <Dropdown />
+            <div className="flex items-center gap-4">
+                <Select
+                    className="w-48"
+                    options={[
+                        { value: 'all', label: 'All Shifts' },
+                        { value: 'morning', label: 'Morning Shift' },
+                        { value: 'evening', label: 'Evening Shift' },
+                        { value: 'night', label: 'Night Shift' },
+                    ]}
+                    placeholder="Filter by shift"
+                    isSearchable={true}
+                    styles={{
+                        control: (base) => ({
+                            ...base,
+                            backgroundColor: 'white',
+                            borderColor: 'gray',
+                            boxShadow: 'none',
+                            '&:hover': {
+                                borderColor: 'gray',
+                            },
+                        }),
+                    }}
+                />
+                <button onClick={() => setFormState(true)} className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-md transition-colors">Add new shift</button>
+            </div>
+            <Modal setIsOpen={setFormState} isOpen={formState} title={"Add New Shift"} description={<>
+              <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+                <label className="text-sm font-medium text-gray-700">Shift Name</label>
+                <input 
+                  type="text" 
+                  name="shiftName"
+                  value={formData.shiftName}
+                  onChange={handleInputChange}
+                  className="border border-gray-300 rounded-md p-2" 
+                  placeholder="Enter shift name" 
+                  required
+                />
+                
+                <label className="text-sm font-medium text-gray-700">Shift Date</label>
+                <input 
+                  type="date" 
+                  name="shiftDate"
+                  value={formData.shiftDate}
+                  onChange={handleInputChange}
+                  className="border border-gray-300 rounded-md p-2" 
+                  required
+                />
+                <label className="text-sm font-medium text-gray-700">Shift Type</label>
+                <Select
+                  className="w-full"
+                  value={formData.shiftType ? { value: formData.shiftType, label: formData.shiftType.charAt(0).toUpperCase() + formData.shiftType.slice(1) + ' Shift' } : null}
+                  onChange={handleSelectChange}
+                  options={[
+                    { value: 'morning', label: 'Morning Shift' },
+                    { value: 'evening', label: 'Evening Shift' },
+                    { value: 'night', label: 'Night Shift' },
+                  ]}  
+                  placeholder="Select shift type"
+                  isSearchable={true}
+                  styles={{
+                    control: (base) => ({
+                        ...base,
+                        backgroundColor: 'white',
+                        borderColor: 'gray',
+                        boxShadow: 'none',
+                        '&:hover': {
+                            borderColor: 'gray',
+                        },
+                    }),
+                  }}
+                />
+                <label className="text-sm font-medium text-gray-700">Maximum Capacity</label>
+                <input 
+                  type="number" 
+                  name="maxCapacity"
+                  value={formData.maxCapacity}
+                  onChange={handleInputChange}
+                  className="border border-gray-300 rounded-md p-2" 
+                  placeholder="Enter maximum capacity" 
+                  required
+                  min="1"
+                />
+                <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition-colors">Add Shift</button>
+              </form>
+              </>}/>
         </div>
         <ul role="list" className="divide-y divide-gray-100">
-        {people.map((person) => (
-            <li key={person.email} className="flex justify-between gap-x-6 py-5">
+        {shifts.map((shift: any) => (
+            <li key={shift._id || shift.id} className="flex justify-between gap-x-6 py-5">
             <div className="flex min-w-0 gap-x-4">
-                <img alt="" src={person.imageUrl} className="size-12 flex-none rounded-full bg-gray-50" />
+                <div className="size-12 flex-none rounded-full bg-blue-100 flex items-center justify-center">
+                  <span className="text-blue-600 font-semibold text-sm">
+                    {shift.type?.charAt(0).toUpperCase() || 'S'}
+                  </span>
+                </div>
                 <div className="min-w-0 flex-auto">
-                <p className="text-sm/6 font-semibold text-gray-900">{person.name}</p>
-                <p className="mt-1 truncate text-xs/5 text-gray-500">{person.email}</p>
+                <p className="text-sm/6 font-semibold text-gray-900">{shift.name}</p>
+                <p className="mt-1 truncate text-xs/5 text-gray-500">{shift.date}</p>
                 </div>
             </div>
             <div className="hidden shrink-0 sm:flex sm:flex-col sm:items-end">
-                <p className="text-sm/6 text-gray-900">{person.role}</p>
-                {person.currentShift ? (
+                <p className="text-sm/6 text-gray-900">{shift.type} Shift</p>
                 <p className="mt-1 text-xs/5 text-gray-500">
-                    <time dateTime={person.currentShiftDateTime}>{person.currentShift}</time>
+                    Capacity: {shift.maxCapacity}
                 </p>
-                ) : (
-                <div className="mt-1 flex items-center gap-x-1.5">
-                    <div className="flex-none rounded-full bg-emerald-500/20 p-1">
-                    <div className="size-1.5 rounded-full bg-emerald-500" />
-                    </div>
-                    <p className="text-xs/5 text-gray-500">Online</p>
-                </div>
-                )}
             </div>
             </li>
         ))}
