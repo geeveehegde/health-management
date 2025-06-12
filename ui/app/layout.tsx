@@ -8,9 +8,9 @@ import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
 const navigation = [
   { name: 'Staff Management', href: '/staff' },
   {name:'Shift Management',href:'/shift'},
-  { name: "Role's table", href: '#' },
-  { name: 'Marketplace', href: '#' },
-  { name: 'Company', href: '#' },
+  { name: "Role's table", href: '/role' },
+  // { name: 'Marketplace', href: '#' },
+  // { name: 'Company', href: '#' },
 ]
 const geistSans = Geist({
   variable: "--font-geist-sans",

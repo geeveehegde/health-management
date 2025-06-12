@@ -8,8 +8,8 @@ const navigation = [
   { name: 'Staff Management', href: '/staff' },
   {name:'Shift Management',href:'/shift'},
   { name: 'Roles Table', href: '#' },
-  { name: 'Marketplace', href: '#' },
-  { name: 'Company', href: '#' },
+  // { name: 'Marketplace', href: '#' },
+  // { name: 'Company', href: '#' },
 ]
 
 export default function HomePage() {

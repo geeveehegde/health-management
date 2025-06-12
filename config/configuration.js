@@ -1,7 +1,7 @@
 // Configuration settings for the chat application
 const config = {
   // Server settings
-  port: process.env.PORT || 3000,
+  port: process.env.PORT || 4000,
   
   // MongoDB settings
   mongodb: {
