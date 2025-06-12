@@ -11,7 +11,7 @@ const handleSubmit = async (e) => {
   e.preventDefault();
 
   try {
-    const response = await axios.post("/api/roles", { roleName }); // Replace with your actual endpoint
+    const response = await axios.post("http://localhost:3000/api/role", { roleName }); // Replace with your actual endpoint
     console.log("Role created:", response.data);
     toast.success("Role created successfully!");
     setRoleName(""); // Clear input
