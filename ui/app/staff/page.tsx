@@ -17,10 +17,10 @@ export default function StaffPage() {
  });
 
  const fetchShifts = () => {
-  fetch('http://localhost:3000/api/shiftSchedule')
-    .then(response =>  response.json())
+  axios.get('http://localhost:3000/api/shiftShedule')
     .then(data => {
-      setShifts(data);
+      console.log('Fetched shifts:', data.data.data);
+      setShifts(data.data.data);
     }
     )
     .catch(error => {
@@ -51,16 +51,16 @@ export default function StaffPage() {
  const handleSubmit = async (e: any) => {
    e.preventDefault();
    try {
-     const response = await fetch('http://localhost:3000/api/shiftSchedule', {
+     const response = await fetch('http://localhost:3000/api/shiftShedule', {
        method: 'POST',
        headers: {
          'Content-Type': 'application/json',
        },
        body: JSON.stringify({
-         name: formData.shiftName,
+         shiftName: formData.shiftName,
          date: formData.shiftDate,
          type: formData.shiftType,
-         maxCapacity: parseInt(formData.maxCapacity)
+         capacity: parseInt(formData.maxCapacity)
        })
      });
 
@@ -171,14 +171,10 @@ export default function StaffPage() {
               </form>
               </>}/>
         </div>
-        {isLoading ? (
-          <div className="flex justify-center items-center py-8">
-            <p className="text-gray-500">Loading shifts...</p>
-          </div>
-        ) : (
+        
           <ul role="list" className="divide-y divide-gray-100">
-          {shifts?.map((shift: any) => (
-              <li key={shift._id || shift.id} className="flex justify-between gap-x-6 py-5">
+          {shifts?.map((shift: any) => {console.log(shift);return (
+              <li key={shift._id || shift.id} className="flex justify-between gap-x-6 py-5 px-4">
               <div className="flex min-w-0 gap-x-4">
                   <div className="size-12 flex-none rounded-full bg-blue-100 flex items-center justify-center">
                     <span className="text-blue-600 font-semibold text-sm">
@@ -186,20 +182,20 @@ export default function StaffPage() {
                     </span>
                   </div>
                   <div className="min-w-0 flex-auto">
-                  <p className="text-sm/6 font-semibold text-gray-900">{shift.name}</p>
+                  <p className="text-sm/6 font-semibold text-gray-900">{shift.shiftName}</p>
                   <p className="mt-1 truncate text-xs/5 text-gray-500">{shift.date}</p>
                   </div>
               </div>
               <div className="hidden shrink-0 sm:flex sm:flex-col sm:items-end">
                   <p className="text-sm/6 text-gray-900">{shift.type} Shift</p>
                   <p className="mt-1 text-xs/5 text-gray-500">
-                      Capacity: {shift.maxCapacity}
+                      Capacity: {shift.capacity}
                   </p>
               </div>
               </li>
-          ))}
+          )})}
           </ul>
-        )}
+        
     </div>
     
   )
