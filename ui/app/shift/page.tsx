@@ -56,6 +56,7 @@ export default function ShiftForm() {
           onChange={(e) => setShiftSearch(e.target.value)}
           onFocus={() => setShowShiftDropdown(true)}
           className="w-full px-3 py-2 border border-gray-300 rounded-md text-black"
+          required
         />
         {showShiftDropdown && (
           <ul className="absolute z-10 bg-white border border-gray-300 w-full mt-1 rounded-md max-h-40 overflow-auto">
@@ -90,6 +91,7 @@ export default function ShiftForm() {
           onChange={(e) => setUserSearch(e.target.value)}
           onFocus={() => setShowUserDropdown(true)}
           className="w-full px-3 py-2 border border-gray-300 rounded-md text-black"
+          required
         />
         {showUserDropdown && (
           <ul className="absolute z-10 bg-white border border-gray-300 w-full mt-1 rounded-md max-h-40 overflow-auto">
