@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import Modal from "../components/Modal";
 import Select from "react-select";
+import axios from "axios";
 
 
 export default function StaffPage() {
@@ -14,17 +15,15 @@ export default function StaffPage() {
    maxCapacity: ''
  });
 
- const fetchShifts = () => {
-  fetch('http://localhost:3000/api/shiftSchedule')
-    .then(response =>  response.json())
-    .then(data => {
-      setShifts(data);
-    }
-    )
-    .catch(error => {
-      console.error('Error fetching shifts:', error);
-    }
-  );
+ const fetchShifts = async() => {
+  try{
+    const response=await axios.get('http://localhost:3000/api/shiftShedule')
+    console.log("response",response)
+
+  }catch(err){
+          console.error('Error fetching shifts:', err);
+
+  };
  };
 
  useEffect(() => {
@@ -46,41 +45,39 @@ export default function StaffPage() {
    }));
  };
 
- const handleSubmit = async (e: any) => {
-   e.preventDefault();
-   try {
-     const response = await fetch('http://localhost:3000/api/shiftSchedule', {
-       method: 'POST',
-       headers: {
-         'Content-Type': 'application/json',
-       },
-       body: JSON.stringify({
-         name: formData.shiftName,
-         date: formData.shiftDate,
-         type: formData.shiftType,
-         maxCapacity: parseInt(formData.maxCapacity)
-       })
-     });
+const handleSubmit = async (e: any) => {
+  e.preventDefault();
+  try {
+    const response = await fetch('http://localhost:3000/api/shiftShedule', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        shiftName: formData.shiftName,
+        date: formData.shiftDate,
+        type: formData.shiftType,
+        capacity: parseInt(formData.maxCapacity),
+      }),
+    });
 
-     if (response.ok) {
-       // Reset form
-       setFormData({
-         shiftName: '',
-         shiftDate: '',
-         shiftType: '',
-         maxCapacity: ''
-       });
-       // Close modal
-       setFormState(false);
-       // Refresh shifts list
-       fetchShifts();
-     } else {
-       console.error('Error creating shift:', response.statusText);
-     }
-   } catch (error) {
-     console.error('Error creating shift:', error);
-   }
- };
+    if (response.ok) {
+      setFormData({
+        shiftName: '',
+        shiftDate: '',
+        shiftType: '',
+        maxCapacity: '',
+      });
+      setFormState(false);
+      fetchShifts();
+    } else {
+      console.error('Error creating shift:', response.statusText);
+    }
+  } catch (error) {
+    console.error('Error creating shift:', error);
+  }
+};
+
   return (
     <div className="w-screen text-gray-900">
         <div className="w-screen h-30 flex items-center justify-between px-6">
